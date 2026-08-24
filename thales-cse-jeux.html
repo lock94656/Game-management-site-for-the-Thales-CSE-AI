@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSE Thales — Ludothèque</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0e1117;
+    --surface: #161b27;
+    --surface2: #1e2537;
+    --border: #2a3349;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --card-hover: #232d42;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN ─────────────────────────────────── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 60% 20%, #1a1040 0%, var(--bg) 60%);
+  }
+
+  .login-box {
+    width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    box-shadow: 0 0 60px rgba(0,212,255,.07);
+  }
+
+  .login-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .login-logo .icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: grid; place-items: center;
+    font-size: 20px;
+  }
+
+  .login-logo h1 { font-size: 22px; font-weight: 700; letter-spacing: -.3px; }
+  .login-logo span { font-size: 12px; color: var(--muted); display: block; }
+
+  .login-box h2 { font-size: 18px; font-weight: 600; margin-bottom: 24px; }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color .2s;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 8px; border: none;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-primary { background: var(--accent); color: #000; }
+  .btn-primary:hover { background: #33ddff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-full { width: 100%; justify-content: center; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+
+  .login-hint {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.7;
+    padding: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+  }
+
+  .login-hint code {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  .error-msg {
+    background: rgba(239,68,68,.1);
+    border: 1px solid rgba(239,68,68,.3);
+    color: #fca5a5;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* ── APP SHELL ──────────────────────────────── */
+  #app { display: none; min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .header-logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+  .header-logo .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+
+  nav { display: flex; gap: 4px; }
+  .nav-btn {
+    padding: 6px 16px; border-radius: 6px; border: none;
+    background: transparent; color: var(--muted);
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all .15s;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--surface2); }
+  .nav-btn.active { color: var(--accent); background: rgba(0,212,255,.1); }
+  .nav-btn.admin-only { display: none; }
+
+  .header-user {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 50%; display: grid; place-items: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+  }
+
+  main { padding: 32px; max-width: 1200px; margin: 0 auto; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARDS GRID ─────────────────────────────── */
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap; gap: 16px;
+  }
+  .page-title { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+  .page-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  .filters {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .filter-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-family: inherit;
+    font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,.08);
+  }
+
+  .search-bar {
+    width: 100%; max-width: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    color: var(--text);
+    font-family: inherit; font-size: 14px;
+  }
+  .search-bar:focus { outline: none; border-color: var(--accent); }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .game-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all .2s;
+    cursor: default;
+  }
+  .game-card:hover { background: var(--card-hover); border-color: #3a4560; transform: translateY(-2px); }
+
+  .game-card-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .game-emoji { font-size: 36px; line-height: 1; }
+  .game-badge {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .badge-available { background: rgba(16,185,129,.15); color: #34d399; }
+  .badge-borrowed { background: rgba(239,68,68,.15); color: #f87171; }
+  .badge-maintenance { background: rgba(245,158,11,.15); color: #fbbf24; }
+
+  .game-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .game-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .game-meta span { display: inline-block; margin-right: 10px; }
+
+  .game-actions { margin-top: 14px; display: flex; gap: 8px; }
+
+  /* ── TABLE ──────────────────────────────────── */
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    background: var(--surface2); text-align: left;
+    padding: 12px 16px; font-size: 12px; font-weight: 600;
+    color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+    white-space: nowrap;
+  }
+  td { padding: 12px 16px; font-size: 13px; border-top: 1px solid var(--border); }
+  tr:hover td { background: var(--surface2); }
+
+  /* ── MODAL ──────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7);
+    display: none; place-items: center; z-index: 500;
+  }
+  .modal-overlay.open { display: grid; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px; width: 480px; max-width: 95vw;
+    box-shadow: 0 25px 60px rgba(0,0,0,.5);
+  }
+  .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* ── STATS ──────────────────────────────────── */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px; margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 700; font-family: 'Space Mono', monospace; }
+  .stat-value.cyan { color: var(--accent); }
+  .stat-value.purple { color: #a78bfa; }
+  .stat-value.red { color: #f87171; }
+  .stat-value.green { color: #34d399; }
+
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    padding: 14px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    background: var(--surface2); border: 1px solid var(--border);
+    box-shadow: 0 8px 30px rgba(0,0,0,.4);
+    z-index: 1000; transition: all .3s; transform: translateY(80px); opacity: 0;
+    max-width: 320px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--success); color: #34d399; }
+  .toast.error { border-color: var(--danger); color: #f87171; }
+  .toast.warning { border-color: var(--warning); color: #fbbf24; }
+
+  .tag {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 4px; font-size: 11px; font-weight: 600;
+    background: rgba(124,58,237,.2); color: #a78bfa; margin-left: 6px;
+  }
+  .tag.admin { background: rgba(0,212,255,.1); color: var(--accent); }
+
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; }
+
+  @media (max-width: 600px) {
+    main { padding: 16px; }
+    header { padding: 0 16px; }
+    .games-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     LOGIN SCREEN
+═══════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="icon">🎲</div>
+      <div>
+        <h1>CSE Thales</h1>
+        <span>Ludothèque en ligne</span>
+      </div>
+    </div>
+    <h2>Connexion</h2>
+    <div id="login-error" class="error-msg">Identifiants incorrects.</div>
+    <div class="field">
+      <label>Identifiant</label>
+      <input id="login-user" type="text" placeholder="ex: jdupont" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Mot de passe</label>
+      <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" style="margin-top:8px">
+      Se connecter →
+    </button>
+    <div class="login-hint">
+      <strong>Comptes de démonstration</strong><br>
+      Utilisateur : <code>user / user123</code><br>
+      Admin : <code>admin / admin123</code>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     APP
+═══════════════════════════════════════════════════ -->
+<div id="app">
+  <header>
+    <div class="header-logo">
+      <span>🎲</span>
+      <span>CSE Thales — Ludothèque</span>
+      <div class="dot"></div>
+    </div>
+    <nav>
+      <button class="nav-btn active" onclick="goPage('catalogue')">Catalogue</button>
+      <button class="nav-btn" onclick="goPage('mes-emprunts')">Mes emprunts</button>
+      <button class="nav-btn admin-only" onclick="goPage('admin-emprunts')">Gestion emprunts</button>
+      <button class="nav-btn admin-only" onclick="goPage('admin-jeux')">Gestion jeux</button>
+    </nav>
+    <div class="header-user">
+      <div class="avatar" id="user-avatar">U</div>
+      <span id="user-name" style="font-size:14px;font-weight:500"></span>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ── CATALOGUE ─────────────────────────── -->
+    <div id="page-catalogue" class="page active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Catalogue</div>
+          <div class="page-sub">Parcourez les jeux disponibles à l'emprunt</div>
+        </div>
+        <input class="search-bar" placeholder="🔍  Rechercher un jeu…" oninput="filterGames(this.value)" id="search-input">
+      </div>
+      <div class="filters" id="cat-filters">
+        <button class="filter-btn active" onclick="setCatFilter('tous',this)">Tous</button>
+        <button class="filter-btn" onclick="setCatFilter('disponible',this)">Disponibles</button>
+        <button class="filter-btn" onclick="setCatFilter('emprunté',this)">Empruntés</button>
+        <button class="filter-btn" onclick="setCatFilter('stratégie',this)">Stratégie</button>
+        <button class="filter-btn" onclick="setCatFilter('famille',this)">Famille</button>
+        <button class="filter-btn" onclick="setCatFilter('coopératif',this)">Coopératif</button>
+      </div>
+      <div class="games-grid" id="games-grid"></div>
+    </div>
+
+    <!-- ── MES EMPRUNTS ───────────────────────── -->
+    <div id="page-mes-emprunts" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Mes emprunts</div>
+          <div class="page-sub">Historique et emprunts en cours</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="table-mes-emprunts">
+          <thead>
+            <tr>
+              <th>Jeu</th>
+              <th>Date d'emprunt</th>
+              <th>Date de retour prévue</th>
+              <th>Retour effectif</th>
+              <th>Statut</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-mes-emprunts"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ADMIN : EMPRUNTS ───────────────────── -->
+    <div id="page-admin-emprunts" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Gestion des emprunts <span class="tag admin">Admin</span></div>
+          <div class="page-sub">Tous les emprunts en cours et l'historique complet</div>
+        </div>
+        <button class="btn btn-primary" onclick="exportCSV()">⬇ Exporter CSV</button>
+      </div>
+      <div class="stats-grid" id="admin-stats"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Utilisateur</th>
+              <th>Jeu</th>
+              <th>Emprunté le</th>
+              <th>Retour prévu</th>
+              <th>Retour effectif</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-admin-emprunts"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ADMIN : JEUX ───────────────────────── -->
+    <div id="page-admin-jeux" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Gestion des jeux <span class="tag admin">Admin</span></div>
+          <div class="page-sub">Ajouter, modifier ou retirer des jeux du catalogue</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModalAddGame()">+ Ajouter un jeu</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Jeu</th>
+              <th>Catégorie</th>
+              <th>Joueurs</th>
+              <th>Durée</th>
+              <th>Statut</th>
+              <th>Emprunts total</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-admin-jeux"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════════ -->
+<!-- Emprunt -->
+<div class="modal-overlay" id="modal-borrow">
+  <div class="modal">
+    <h3 id="modal-borrow-title">Emprunter un jeu</h3>
+    <div class="field">
+      <label>Date de retour prévue</label>
+      <input type="date" id="borrow-return-date">
+    </div>
+    <p id="modal-borrow-info" style="font-size:13px;color:var(--muted);margin-top:8px"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-borrow')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmBorrow()">Confirmer l'emprunt</button>
+    </div>
+  </div>
+</div>
+
+<!-- Retour (admin) -->
+<div class="modal-overlay" id="modal-return">
+  <div class="modal">
+    <h3>Enregistrer le retour</h3>
+    <p id="modal-return-info" style="font-size:14px;margin-bottom:16px"></p>
+    <div class="field">
+      <label>Date de retour effective</label>
+      <input type="date" id="return-date-input">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-return')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmReturn()">Valider le retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ajout jeu (admin) -->
+<div class="modal-overlay" id="modal-add-game">
+  <div class="modal">
+    <h3 id="modal-game-title">Ajouter un jeu</h3>
+    <input type="hidden" id="edit-game-id">
+    <div class="field"><label>Nom du jeu</label><input id="g-name" placeholder="Catan, Pandemic…"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Catégorie</label>
+        <select id="g-cat">
+          <option>stratégie</option><option>famille</option><option>coopératif</option>
+          <option>ambiance</option><option>expert</option>
+        </select>
+      </div>
+      <div class="field"><label>Nb joueurs</label><input id="g-players" placeholder="2-6"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field"><label>Durée (min)</label><input id="g-duration" type="number" placeholder="45"></div>
+      <div class="field"><label>Durée max emprunt (jours)</label><input id="g-maxdays" type="number" placeholder="14"></div>
+    </div>
+    <div class="field"><label>Emoji 🎲</label><input id="g-emoji" placeholder="🎲" maxlength="4"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-add-game')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveGame()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════ -->
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const USERS = [
+  { id: 'user',  name: 'Jean Dupont',    role: 'user',  pass: 'user123'  },
+  { id: 'admin', name: 'Marie Laurent',  role: 'admin', pass: 'admin123' },
+  { id: 'alice', name: 'Alice Moreau',   role: 'user',  pass: 'alice123' },
+];
+
+let games = [
+  { id:1,  name:'Catan',           cat:'stratégie',  players:'3-4', duration:90,  maxDays:14, emoji:'🏝️',  status:'disponible', totalBorrows:12 },
+  { id:2,  name:'Pandemic',        cat:'coopératif', players:'2-4', duration:60,  maxDays:14, emoji:'🦠',  status:'disponible', totalBorrows:8  },
+  { id:3,  name:'Ticket to Ride',  cat:'famille',    players:'2-5', duration:75,  maxDays:14, emoji:'🚂',  status:'emprunté',   totalBorrows:15 },
+  { id:4,  name:'7 Wonders',       cat:'stratégie',  players:'2-7', duration:45,  maxDays:10, emoji:'🏛️',  status:'disponible', totalBorrows:6  },
+  { id:5,  name:'Dixit',           cat:'ambiance',   players:'3-6', duration:30,  maxDays:7,  emoji:'🃏',  status:'disponible', totalBorrows:20 },
+  { id:6,  name:'Terraforming Mars',cat:'expert',    players:'1-5', duration:120, maxDays:21, emoji:'🔴',  status:'disponible', totalBorrows:4  },
+  { id:7,  name:'Wingspan',        cat:'famille',    players:'1-5', duration:70,  maxDays:14, emoji:'🐦',  status:'emprunté',   totalBorrows:9  },
+  { id:8,  name:'Azul',            cat:'stratégie',  players:'2-4', duration:45,  maxDays:10, emoji:'🔷',  status:'disponible', totalBorrows:11 },
+  { id:9,  name:'Codenames',       cat:'ambiance',   players:'4-8', duration:20,  maxDays:7,  emoji:'🔑',  status:'disponible', totalBorrows:18 },
+  { id:10, name:'Spirit Island',   cat:'coopératif', players:'1-4', duration:120, maxDays:21, emoji:'🌴',  status:'maintenance',totalBorrows:3  },
+];
+
+// ⚠️ ANOMALIE CRITIQUE A-01 : les emprunts sont partagés globalement (pas par utilisateur)
+// Toutes les sessions voient et modifient le même tableau — fuite de données entre comptes.
+let borrows = [
+  { id:101, userId:'alice', gameId:3, gameNm:'Ticket to Ride', borrowDate:'2025-06-01', dueDate:'2025-06-15', returnDate:'2025-06-14', status:'rendu' },
+  { id:102, userId:'alice', gameId:7, gameNm:'Wingspan',       borrowDate:'2025-06-10', dueDate:'2025-06-24', returnDate:null,         status:'en cours' },
+  { id:103, userId:'user',  gameId:5, gameNm:'Dixit',          borrowDate:'2025-05-20', dueDate:'2025-05-27', returnDate:'2025-06-05', status:'rendu en retard' },
+];
+let nextBorrowId = 200;
+let nextGameId   = 11;
+
+let currentUser  = null;
+let catFilter    = 'tous';
+let searchFilter = '';
+let pendingBorrowGameId = null;
+let pendingReturnBorrowId = null;
+
+// ══════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════
+function doLogin() {
+  const uid  = document.getElementById('login-user').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  // ⚠️ ANOMALIE MINEURE A-04 : la comparaison est en toLowerCase() pour l'ID
+  // mais pas pour le mot de passe → sensible à la casse sur le pass
+  const u = USERS.find(u => u.id.toLowerCase() === uid.toLowerCase() && u.pass === pass);
+  if (!u) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('login-error').style.display = 'none';
+  currentUser = u;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('user-avatar').textContent = u.name[0].toUpperCase();
+  document.getElementById('user-name').textContent = u.name;
+  if (u.role === 'admin') {
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'inline-flex');
+  }
+  goPage('catalogue');
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+}
+
+// ══════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  // activate nav
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick')?.includes(id)) b.classList.add('active');
+  });
+  if (id === 'catalogue')       renderCatalogue();
+  if (id === 'mes-emprunts')    renderMesEmprunts();
+  if (id === 'admin-emprunts')  renderAdminEmprunts();
+  if (id === 'admin-jeux')      renderAdminJeux();
+}
+
+// ══════════════════════════════════════════════
+//  CATALOGUE
+// ══════════════════════════════════════════════
+function renderCatalogue() {
+  const grid = document.getElementById('games-grid');
+  let list = games;
+
+  if (catFilter !== 'tous') {
+    if (catFilter === 'disponible') list = list.filter(g => g.status === 'disponible');
+    else if (catFilter === 'emprunté') list = list.filter(g => g.status === 'emprunté');
+    else list = list.filter(g => g.cat === catFilter);
+  }
+  if (searchFilter) {
+    const q = searchFilter.toLowerCase();
+    list = list.filter(g => g.name.toLowerCase().includes(q) || g.cat.toLowerCase().includes(q));
+  }
+
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Aucun jeu trouvé.</p></div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(g => {
+    const badge = g.status === 'disponible'
+      ? '<span class="game-badge badge-available">Disponible</span>'
+      : g.status === 'emprunté'
+        ? '<span class="game-badge badge-borrowed">Emprunté</span>'
+        : '<span class="game-badge badge-maintenance">Maintenance</span>';
+
+    // ⚠️ ANOMALIE MINEURE A-05 : le bouton "Emprunter" est affiché
+    // même pour un jeu en maintenance (seul "emprunté" est bloqué)
+    const canBorrow = g.status === 'disponible' || g.status === 'maintenance';
+    const btn = canBorrow
+      ? `<button class="btn btn-primary btn-sm" onclick="openModalBorrow(${g.id})">Emprunter</button>`
+      : `<button class="btn btn-ghost btn-sm" disabled>Indisponible</button>`;
+
+    return `
+      <div class="game-card">
+        <div class="game-card-header">
+          <span class="game-emoji">${g.emoji}</span>
+          ${badge}
+        </div>
+        <div class="game-name">${g.name}</div>
+        <div class="game-meta">
+          <span>👥 ${g.players}</span>
+          <span>⏱ ${g.duration} min</span>
+          <span>🏷 ${g.cat}</span>
+        </div>
+        <div class="game-meta" style="margin-top:4px">
+          <span>📅 Retour max : ${g.maxDays} j</span>
+        </div>
+        <div class="game-actions">${btn}</div>
+      </div>`;
+  }).join('');
+}
+
+function setCatFilter(val, btn) {
+  catFilter = val;
+  document.querySelectorAll('#cat-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCatalogue();
+}
+
+function filterGames(val) {
+  searchFilter = val;
+  renderCatalogue();
+}
+
+// ══════════════════════════════════════════════
+//  EMPRUNT
+// ══════════════════════════════════════════════
+function openModalBorrow(gameId) {
+  const game = games.find(g => g.id === gameId);
+  pendingBorrowGameId = gameId;
+  document.getElementById('modal-borrow-title').textContent = 'Emprunter — ' + game.name;
+  // ⚠️ ANOMALIE MAJEURE A-02 : la date minimale de retour n'est pas fixée à demain.
+  // L'utilisateur peut saisir une date passée → emprunt incohérent accepté.
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('borrow-return-date').value = today; // devrait être today+1
+  document.getElementById('borrow-return-date').min = ''; // devrait être today+1
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + game.maxDays);
+  document.getElementById('borrow-return-date').max = maxDate.toISOString().split('T')[0];
+  document.getElementById('modal-borrow-info').textContent =
+    `Durée maximale : ${game.maxDays} jours. Retour au plus tard le ${maxDate.toLocaleDateString('fr-FR')}.`;
+  openModal('modal-borrow');
+}
+
+function confirmBorrow() {
+  const game = games.find(g => g.id === pendingBorrowGameId);
+  const dueDate = document.getElementById('borrow-return-date').value;
+  if (!dueDate) { showToast('Veuillez saisir une date de retour.', 'warning'); return; }
+
+  // Check double-emprunt même jeu par le même user
+  const already = borrows.find(b => b.userId === currentUser.id && b.gameId === pendingBorrowGameId && b.status === 'en cours');
+  if (already) { showToast('Vous avez déjà emprunté ce jeu.', 'warning'); return; }
+
+  // ⚠️ ANOMALIE MAJEURE A-03 : pas de vérification du nombre max d'emprunts simultanés
+  // Un utilisateur peut emprunter un nombre illimité de jeux en même temps.
+  // La règle R-07 impose un maximum de 3 emprunts simultanés.
+
+  game.status = 'emprunté';
+  const today = new Date().toISOString().split('T')[0];
+  borrows.push({
+    id: nextBorrowId++,
+    userId: currentUser.id,
+    gameId: game.id,
+    gameNm: game.name,
+    borrowDate: today,
+    dueDate,
+    returnDate: null,
+    status: 'en cours'
+  });
+  game.totalBorrows++;
+  closeModal('modal-borrow');
+  showToast(`"${game.name}" emprunté avec succès !`, 'success');
+  renderCatalogue();
+}
+
+// ══════════════════════════════════════════════
+//  MES EMPRUNTS
+// ══════════════════════════════════════════════
+function renderMesEmprunts() {
+  // ⚠️ ANOMALIE CRITIQUE A-01 : absence de filtre sur currentUser.id
+  // → TOUS les emprunts (tous utilisateurs) sont affichés à n'importe quel user connecté.
+  // Correction attendue : borrows.filter(b => b.userId === currentUser.id)
+  const myBorrows = borrows; // BUG : devrait être borrows.filter(b => b.userId === currentUser.id)
+
+  const tbody = document.getElementById('tbody-mes-emprunts');
+  if (myBorrows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px">Aucun emprunt.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = myBorrows.map(b => {
+    const statusColor = b.status === 'en cours' ? 'var(--accent)' : b.status.includes('retard') ? 'var(--danger)' : 'var(--success)';
+    const retourBtn = b.status === 'en cours'
+      ? `<button class="btn btn-ghost btn-sm" onclick="userReturn(${b.id})">Signaler retour</button>`
+      : '—';
+    return `<tr>
+      <td>${b.gameNm}</td>
+      <td>${fmtDate(b.borrowDate)}</td>
+      <td>${fmtDate(b.dueDate)}</td>
+      <td>${b.returnDate ? fmtDate(b.returnDate) : '—'}</td>
+      <td><span style="color:${statusColor};font-weight:600">${b.status}</span></td>
+      <td>${retourBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+function userReturn(borrowId) {
+  // Simule un retour utilisateur (l'admin validera)
+  const b = borrows.find(x => x.id === borrowId);
+  if (!b) return;
+  const today = new Date().toISOString().split('T')[0];
+  b.returnDate = today;
+  b.status = today > b.dueDate ? 'rendu en retard' : 'rendu';
+  const game = games.find(g => g.id === b.gameId);
+  if (game) game.status = 'disponible';
+  showToast('Retour enregistré.', 'success');
+  renderMesEmprunts();
+}
+
+// ══════════════════════════════════════════════
+//  ADMIN — EMPRUNTS
+// ══════════════════════════════════════════════
+function renderAdminEmprunts() {
+  // Stats
+  const total = borrows.length;
+  const enCours = borrows.filter(b => b.status === 'en cours').length;
+  const retard  = borrows.filter(b => b.status === 'rendu en retard' || (b.status === 'en cours' && b.dueDate < new Date().toISOString().split('T')[0])).length;
+  const rendus  = borrows.filter(b => b.status === 'rendu').length;
+
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total emprunts</div><div class="stat-value cyan">${total}</div></div>
+    <div class="stat-card"><div class="stat-label">En cours</div><div class="stat-value purple">${enCours}</div></div>
+    <div class="stat-card"><div class="stat-label">En retard</div><div class="stat-value red">${retard}</div></div>
+    <div class="stat-card"><div class="stat-label">Rendus</div><div class="stat-value green">${rendus}</div></div>
+  `;
+
+  const tbody = document.getElementById('tbody-admin-emprunts');
+  tbody.innerHTML = borrows.map(b => {
+    const today = new Date().toISOString().split('T')[0];
+    const isLate = b.status === 'en cours' && b.dueDate < today;
+    const statusLabel = isLate ? 'en retard' : b.status;
+    const statusColor = statusLabel === 'en cours' ? 'var(--accent)' : statusLabel.includes('retard') ? 'var(--danger)' : 'var(--success)';
+    const user = USERS.find(u => u.id === b.userId);
+    const retBtn = b.status === 'en cours'
+      ? `<button class="btn btn-primary btn-sm" onclick="openModalReturn(${b.id})">Retour</button>`
+      : '';
+    const delBtn = b.status !== 'en cours'
+      ? `<button class="btn btn-danger btn-sm" onclick="deleteBorrow(${b.id})">Supprimer</button>`
+      : '';
+    return `<tr>
+      <td>${user ? user.name : b.userId}</td>
+      <td>${b.gameNm}</td>
+      <td>${fmtDate(b.borrowDate)}</td>
+      <td>${fmtDate(b.dueDate)}</td>
+      <td>${b.returnDate ? fmtDate(b.returnDate) : '—'}</td>
+      <td><span style="color:${statusColor};font-weight:600">${statusLabel}</span></td>
+      <td style="display:flex;gap:6px">${retBtn}${delBtn}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openModalReturn(borrowId) {
+  pendingReturnBorrowId = borrowId;
+  const b = borrows.find(x => x.id === borrowId);
+  const user = USERS.find(u => u.id === b.userId);
+  document.getElementById('modal-return-info').textContent =
+    `${user?.name} — ${b.gameNm} (emprunté le ${fmtDate(b.borrowDate)}, retour prévu ${fmtDate(b.dueDate)})`;
+  document.getElementById('return-date-input').value = new Date().toISOString().split('T')[0];
+  openModal('modal-return');
+}
+
+function confirmReturn() {
+  const b = borrows.find(x => x.id === pendingReturnBorrowId);
+  const retDate = document.getElementById('return-date-input').value;
+  if (!retDate) { showToast('Date requise.','warning'); return; }
+  // ⚠️ ANOMALIE MAJEURE A-06 : pas de vérification que la date de retour
+  // est >= à la date d'emprunt → on peut enregistrer un retour avant l'emprunt.
+  b.returnDate = retDate;
+  b.status = retDate > b.dueDate ? 'rendu en retard' : 'rendu';
+  const game = games.find(g => g.id === b.gameId);
+  if (game) game.status = 'disponible';
+  closeModal('modal-return');
+  showToast('Retour enregistré.', 'success');
+  renderAdminEmprunts();
+}
+
+function deleteBorrow(borrowId) {
+  borrows = borrows.filter(b => b.id !== borrowId);
+  renderAdminEmprunts();
+  showToast('Emprunt supprimé.', 'success');
+}
+
+function exportCSV() {
+  // ⚠️ ANOMALIE MINEURE A-07 : le CSV exporte sans BOM UTF-8
+  // → les caractères accentués s'affichent mal dans Excel (Windows).
+  const header = ['Utilisateur','Jeu','Date emprunt','Date retour prévue','Date retour','Statut'];
+  const rows = borrows.map(b => {
+    const user = USERS.find(u => u.id === b.userId);
+    return [user?.name || b.userId, b.gameNm, b.borrowDate, b.dueDate, b.returnDate || '', b.status];
+  });
+  const csv = [header, ...rows].map(r => r.map(c => `"${c}"`).join(';')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' }); // BOM absent — anomalie A-07
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'emprunts.csv'; a.click();
+}
+
+// ══════════════════════════════════════════════
+//  ADMIN — JEUX
+// ══════════════════════════════════════════════
+function renderAdminJeux() {
+  const tbody = document.getElementById('tbody-admin-jeux');
+  tbody.innerHTML = games.map(g => {
+    const badge = g.status === 'disponible'
+      ? '<span class="game-badge badge-available">Disponible</span>'
+      : g.status === 'emprunté'
+        ? '<span class="game-badge badge-borrowed">Emprunté</span>'
+        : '<span class="game-badge badge-maintenance">Maintenance</span>';
+    return `<tr>
+      <td>${g.emoji} ${g.name}</td>
+      <td>${g.cat}</td>
+      <td>${g.players}</td>
+      <td>${g.duration} min</td>
+      <td>${badge}</td>
+      <td>${g.totalBorrows}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editGame(${g.id})">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteGame(${g.id})">Retirer</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openModalAddGame() {
+  document.getElementById('modal-game-title').textContent = 'Ajouter un jeu';
+  document.getElementById('edit-game-id').value = '';
+  ['g-name','g-players','g-duration','g-maxdays','g-emoji'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('g-cat').value = 'stratégie';
+  openModal('modal-add-game');
+}
+
+function editGame(id) {
+  const g = games.find(x => x.id === id);
+  document.getElementById('modal-game-title').textContent = 'Modifier — ' + g.name;
+  document.getElementById('edit-game-id').value = g.id;
+  document.getElementById('g-name').value = g.name;
+  document.getElementById('g-cat').value  = g.cat;
+  document.getElementById('g-players').value  = g.players;
+  document.getElementById('g-duration').value  = g.duration;
+  document.getElementById('g-maxdays').value   = g.maxDays;
+  document.getElementById('g-emoji').value     = g.emoji;
+  openModal('modal-add-game');
+}
+
+function saveGame() {
+  const name = document.getElementById('g-name').value.trim();
+  // ⚠️ ANOMALIE MINEURE A-08 : pas de validation du champ Nom → on peut enregistrer
+  // un jeu avec un nom vide ou en doublon.
+  const editId = document.getElementById('edit-game-id').value;
+  const obj = {
+    name,
+    cat:      document.getElementById('g-cat').value,
+    players:  document.getElementById('g-players').value.trim(),
+    duration: parseInt(document.getElementById('g-duration').value) || 60,
+    maxDays:  parseInt(document.getElementById('g-maxdays').value)  || 14,
+    emoji:    document.getElementById('g-emoji').value.trim() || '🎲',
+  };
+  if (editId) {
+    const g = games.find(x => x.id == editId);
+    Object.assign(g, obj);
+    showToast('Jeu modifié.', 'success');
+  } else {
+    games.push({ id: nextGameId++, ...obj, status: 'disponible', totalBorrows: 0 });
+    showToast('Jeu ajouté.', 'success');
+  }
+  closeModal('modal-add-game');
+  renderAdminJeux();
+}
+
+function deleteGame(id) {
+  // ⚠️ ANOMALIE MINEURE A-09 : on peut supprimer un jeu actuellement emprunté
+  // sans vérifier s'il existe un emprunt en cours → incohérence des données.
+  // Correction : vérifier borrows.find(b => b.gameId === id && b.status === 'en cours')
+  games = games.filter(g => g.id !== id);
+  showToast('Jeu retiré du catalogue.', 'success');
+  renderAdminJeux();
+}
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open');    }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const [y,m,dd] = d.split('-');
+  return `${dd}/${m}/${y}`;
+}
+
+let toastTimer;
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// Login with Enter
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+    doLogin();
+  }
+});
+</script>
+</body>
+</html>
