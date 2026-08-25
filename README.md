@@ -19,7 +19,7 @@ To set up the project locally, you need to have an internet browser like Firefox
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/lock94656/snake.git
+   git clone https://github.com/lock94656/Game-management-site-for-the-Thales-CSE-AI.git
    ```
    
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
