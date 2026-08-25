@@ -1,7 +1,7 @@
  #  Game management website for the Thales CSE (fake one)
 ## About The Project
 
-This repository contains a series of code for a game management website which I created with AI during an internship at Thales Services Numériques (TSN). The code contain a few errors which you need to find : 1 critical error, 3 major errors and 4 minor errors with the specifications. So try to find them. (The AI made more errors...).
+This repository contains a series of code for a game management website which I created with AI during an internship at Thales Services Numeriques (TSN). The code contain a few errors which you need to find : 1 critical error, 3 major errors and 4 minor errors with the specifications. So try to find them. (The AI made more errors...).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
